@@ -121,8 +121,6 @@ cd backend
 npm run seed
 ```
 This creates 25 games and a default admin account:
-- **Email:** admin@gamestore.com  
-- **Password:** admin123
 
 ### Step 4 — Start the Backend
 ```bash
@@ -165,28 +163,6 @@ Frontend runs at: `http://localhost:5173`
 1. Update `frontend/vite.config.js` proxy target to your Render backend URL
 2. Build: `npm run build` (outputs to `dist/`)
 3. Deploy the `dist/` folder to [vercel.com](https://vercel.com) or [netlify.com](https://netlify.com)
-
-**MongoDB Atlas:**
-1. Create free cluster at [mongodb.com/atlas](https://mongodb.com/atlas)
-2. Create a database user
-3. Whitelist IP `0.0.0.0/0` for access
-4. Copy connection string into `MONGO_URI`
-
-### Option B — Deploy with PM2 on a VPS
-
-```bash
-# Install PM2
-npm install -g pm2
-
-# Start backend
-cd backend
-pm2 start server.js --name gamestore-api
-
-# Build frontend and serve with nginx
-cd frontend
-npm run build
-# copy dist/ to nginx web root
-```
 
 ---
 
