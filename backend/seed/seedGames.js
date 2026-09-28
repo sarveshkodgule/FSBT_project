@@ -1,5 +1,5 @@
 // Experiment 3: Connecting to MongoDB - Seed Data
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const Game = require('../models/Game');
 const User = require('../models/User');

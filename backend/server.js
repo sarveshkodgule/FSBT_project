@@ -1,6 +1,6 @@
 // Experiment 1: Demonstrate the Use of Node.js
 // Experiment 2: Implementation of Express.js
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -15,9 +15,6 @@ const cartRoutes = require('./routes/cartRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 const app = express();
-
-// Connect to MongoDB (Experiment 3)
-connectDB();
 
 // Middleware
 app.use(cors({
@@ -54,6 +51,8 @@ app.use(notFound);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  });
 });
