@@ -5,6 +5,7 @@ import { gamesAPI } from '../services/api';
 import GameCard from '../components/GameCard';
 import Loader from '../components/Loader';
 import SearchBar from '../components/SearchBar';
+import GameCollections from '../components/GameCollections';
 
 const GENRES = [
   { name: 'Action', icon: '⚔️' }, { name: 'Adventure', icon: '🗺️' },
@@ -22,6 +23,7 @@ const HomePage = () => {
   const [newReleases, setNewReleases] = useState([]);
   const [topRated, setTopRated] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,7 +38,7 @@ const HomePage = () => {
         setNewReleases(newData.games);
         setTopRated(ratedData.games);
       } catch (err) {
-        console.error(err);
+        setError('We could not load the games. Please try again in a moment.');
       } finally {
         setLoading(false);
       }
@@ -48,15 +50,14 @@ const HomePage = () => {
     if (query) navigate(`/games?search=${encodeURIComponent(query)}`);
   };
 
-  if (loading) return <Loader text="Loading GameStore..." />;
-
   return (
     <div className="home-page">
       {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
-          <h1>Welcome to <span className="brand-highlight">GameStore</span></h1>
-          <p>Discover thousands of games across every genre. From epic RPGs to fast-paced shooters — find your next favourite game.</p>
+          <span className="eyebrow">DISCOVER. PLAY. REPEAT.</span>
+          <h1>Find your next<br /><span className="brand-highlight">great adventure.</span></h1>
+          <p>Epic worlds. Fresh challenges. Your next favourite game.<br />Explore something worth getting lost in.</p>
           <div className="hero-search">
             <SearchBar onSearch={handleSearch} />
           </div>
@@ -71,6 +72,12 @@ const HomePage = () => {
           <div className="stat"><span>4</span><p>Platforms</p></div>
         </div>
       </section>
+
+      <GameCollections />
+
+      {loading && <Loader text="Loading games..." />}
+
+      {error && <div className="section" role="alert"><div className="form-error">{error} <button className="btn-outline-sm" onClick={() => window.location.reload()}>Try again</button></div></div>}
 
       {/* Genre Grid */}
       <section className="section">
@@ -98,7 +105,7 @@ const HomePage = () => {
       )}
 
       {/* New Releases */}
-      <section className="section">
+      {!loading && !error && <section className="section">
         <div className="section-header">
           <h2 className="section-title">🆕 New Releases</h2>
           <Link to="/games?sort=newest" className="see-all">See All →</Link>
@@ -106,10 +113,11 @@ const HomePage = () => {
         <div className="games-grid">
           {newReleases.map((game) => <GameCard key={game._id} game={game} />)}
         </div>
-      </section>
+        {newReleases.length === 0 && <p className="empty-text">New games are on their way. Explore a collection above to find your next adventure.</p>}
+      </section>}
 
       {/* Top Rated */}
-      <section className="section">
+      {topRated.length > 0 && <section className="section">
         <div className="section-header">
           <h2 className="section-title">🏆 Top Rated</h2>
           <Link to="/games?sort=rating" className="see-all">See All →</Link>
@@ -117,7 +125,7 @@ const HomePage = () => {
         <div className="games-grid">
           {topRated.map((game) => <GameCard key={game._id} game={game} />)}
         </div>
-      </section>
+      </section>}
 
       {/* CTA Banner */}
       <section className="cta-banner">

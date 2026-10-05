@@ -31,11 +31,12 @@ const RegisterPage = () => {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>🎮 Join GameStore</h1>
+          <span className="eyebrow">JOIN THE COMMUNITY</span>
+          <h1>Your next chapter.</h1>
           <p>Create your account and start gaming</p>
         </div>
 
-        {error && <div className="form-error">{error}</div>}
+        {error && <div className="form-error" role="alert">{error}</div>}
 
         <form onSubmit={handleSubmit}>
           {[
@@ -45,8 +46,11 @@ const RegisterPage = () => {
             { name: 'confirmPassword', label: 'Confirm Password', type: 'password', placeholder: 'Repeat password' },
           ].map((field) => (
             <div className="form-group" key={field.name}>
-              <label>{field.label}</label>
+              <label htmlFor={`register-${field.name}`}>{field.label}</label>
               <input
+                id={`register-${field.name}`}
+                autoComplete={field.type === 'password' ? 'new-password' : field.name}
+                required
                 type={field.type}
                 placeholder={field.placeholder}
                 value={form[field.name]}

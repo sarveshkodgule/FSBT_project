@@ -27,6 +27,7 @@ const GamesPage = () => {
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState('');
 
   // Filter state from URL
   const search = searchParams.get('search') || '';
@@ -36,6 +37,7 @@ const GamesPage = () => {
   const page = Number(searchParams.get('page')) || 1;
   const minPrice = searchParams.get('minPrice') || '';
   const maxPrice = searchParams.get('maxPrice') || '';
+  const featured = searchParams.get('featured') === 'true';
 
   const updateParam = (key, value) => {
     const params = new URLSearchParams(searchParams);
@@ -48,23 +50,25 @@ const GamesPage = () => {
   const fetchGames = useCallback(async () => {
     try {
       setLoading(true);
+      setError('');
       const params = { sort, page, limit: 12 };
       if (search) params.search = search;
       if (genre) params.genre = genre;
       if (platform) params.platform = platform;
       if (minPrice) params.minPrice = minPrice;
       if (maxPrice) params.maxPrice = maxPrice;
+      if (featured) params.featured = 'true';
 
       const data = await gamesAPI.getAll(params);
       setGames(data.games);
       setTotalPages(data.totalPages);
       setTotal(data.total);
     } catch (err) {
-      console.error(err);
+      setError('Unable to load games right now. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [search, genre, platform, sort, page, minPrice, maxPrice]);
+  }, [search, genre, platform, sort, page, minPrice, maxPrice, featured]);
 
   useEffect(() => { fetchGames(); }, [fetchGames]);
 
@@ -73,7 +77,7 @@ const GamesPage = () => {
   return (
     <div className="games-page">
       <div className="games-page-header">
-        <h1>🎮 All Games</h1>
+        <h1>{genre ? `${genre} Games` : featured ? 'Featured Games' : 'All Games'}</h1>
         <SearchBar onSearch={(q) => updateParam('search', q)} initialValue={search} />
       </div>
 
@@ -147,12 +151,17 @@ const GamesPage = () => {
         {/* Games Grid */}
         <div className="games-main">
           <div className="games-result-info">
-            {loading ? 'Searching...' : `${total} game${total !== 1 ? 's' : ''} found`}
+            {loading ? 'Searching...' : error ? 'Catalogue unavailable' : `${total} game${total !== 1 ? 's' : ''} found`}
             {search && <span className="search-query"> for "{search}"</span>}
           </div>
 
           {loading ? (
             <Loader text="Fetching games..." />
+          ) : error ? (
+            <div className="empty-state" role="alert">
+              <p>{error}</p>
+              <button className="btn-primary" onClick={fetchGames}>Try again</button>
+            </div>
           ) : games.length === 0 ? (
             <div className="empty-state">
               <p>🎮 No games found. Try different filters.</p>
@@ -164,7 +173,7 @@ const GamesPage = () => {
             </div>
           )}
 
-          <Pagination
+          {!error && !loading && <Pagination
             currentPage={page}
             totalPages={totalPages}
             onPageChange={(p) => {
@@ -172,7 +181,7 @@ const GamesPage = () => {
               params.set('page', p);
               setSearchParams(params);
             }}
-          />
+          />}
         </div>
       </div>
     </div>

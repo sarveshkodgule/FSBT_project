@@ -25,7 +25,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Links */}
-        <div className={`navbar-links ${menuOpen ? 'open' : ''}`}>
+        <div id="main-navigation" className={`navbar-links ${menuOpen ? 'open' : ''}`}>
           <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link to="/games" onClick={() => setMenuOpen(false)}>Games</Link>
 
@@ -38,7 +38,7 @@ const Navbar = () => {
               <Link to="/orders" onClick={() => setMenuOpen(false)}>📦 Orders</Link>
 
               <div className="nav-dropdown">
-                <button className="nav-user-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <button className="nav-user-btn" aria-expanded={dropdownOpen} onClick={() => setDropdownOpen(!dropdownOpen)}>
                   👤 {user.name.split(' ')[0]} ▾
                 </button>
                 {dropdownOpen && (
@@ -61,7 +61,7 @@ const Navbar = () => {
         </div>
 
         {/* Hamburger */}
-        <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
+        <button className="hamburger" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="main-navigation" onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? '✕' : '☰'}
         </button>
       </div>

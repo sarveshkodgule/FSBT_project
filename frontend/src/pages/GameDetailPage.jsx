@@ -21,6 +21,8 @@ const GameDetailPage = () => {
   const [wishlist, setWishlist] = useState([]);
   const [qty, setQty] = useState(1);
   const [heroImgLoaded, setHeroImgLoaded] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [savingWishlist, setSavingWishlist] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -41,21 +43,33 @@ const GameDetailPage = () => {
   }, [user]);
 
   const handleAddToCart = async () => {
-    if (!user) { navigate('/login'); return; }
+    if (!user) { navigate('/login', { state: { from: { pathname: `/games/${id}` } } }); return; }
+    if (adding) return;
+    setAdding(true);
     try {
       await addToCart(game._id, qty);
       setCartMsg('✅ Added to cart!');
       setTimeout(() => setCartMsg(''), 3000);
     } catch (err) {
       setCartMsg(`❌ ${err.message}`);
+    } finally {
+      setAdding(false);
     }
   };
 
   const handleWishlist = async () => {
-    if (!user) { navigate('/login'); return; }
-    const data = await authAPI.toggleWishlist(game._id);
-    setWishlist(data.wishlist);
-    updateUser({ wishlist: data.wishlist });
+    if (!user) { navigate('/login', { state: { from: { pathname: `/games/${id}` } } }); return; }
+    if (savingWishlist) return;
+    setSavingWishlist(true);
+    try {
+      const data = await authAPI.toggleWishlist(game._id);
+      setWishlist(data.wishlist);
+      updateUser({ wishlist: data.wishlist });
+    } catch (err) {
+      setCartMsg(`❌ ${err.message}`);
+    } finally {
+      setSavingWishlist(false);
+    }
   };
 
   if (loading) return <Loader />;
@@ -147,23 +161,24 @@ const GameDetailPage = () => {
             <div className="qty-controls">
               <button onClick={() => setQty(Math.max(1, qty - 1))}>−</button>
               <span>{qty}</span>
-              <button onClick={() => setQty(qty + 1)}>+</button>
+              <button disabled={qty >= game.stock} onClick={() => setQty(qty + 1)}>+</button>
             </div>
           </div>
 
-          {cartMsg && <p className="cart-msg">{cartMsg}</p>}
+          {cartMsg && <p className="cart-msg" role="status">{cartMsg}</p>}
 
           <button
             className="btn-primary full-width"
             onClick={handleAddToCart}
-            disabled={game.stock === 0}
+            disabled={game.stock === 0 || adding}
           >
-            {game.stock === 0 ? 'Out of Stock' : '🛒 Add to Cart'}
+            {game.stock === 0 ? 'Out of Stock' : adding ? 'Adding…' : '🛒 Add to Cart'}
           </button>
 
           <button
             className={`btn-outline full-width wishlist-btn ${isWishlisted ? 'wishlisted' : ''}`}
             onClick={handleWishlist}
+            disabled={savingWishlist}
           >
             {isWishlisted ? '❤️ Wishlisted' : '🤍 Add to Wishlist'}
           </button>

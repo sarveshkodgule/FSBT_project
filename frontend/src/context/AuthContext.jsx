@@ -2,6 +2,7 @@
 // Experiment 6: User Authentication and Authorization
 import { createContext, useContext, useState, useEffect } from 'react';
 import { authAPI } from '../services/api';
+import { readSavedUser } from '../services/session';
 
 const AuthContext = createContext(null);
 
@@ -12,10 +13,7 @@ export const AuthProvider = ({ children }) => {
 
   // Load user from localStorage on app start
   useEffect(() => {
-    const storedUser = localStorage.getItem('gamestore_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
+    setUser(readSavedUser());
     setLoading(false);
   }, []);
 

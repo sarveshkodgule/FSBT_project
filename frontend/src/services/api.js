@@ -1,6 +1,7 @@
 // Experiment 9: Data Fetching in React.js
 // Experiment 10: Integrating React with Express
 import axios from 'axios';
+import { readSavedUser } from './session';
 
 const BASE_URL = '/api';
 
@@ -12,7 +13,7 @@ const api = axios.create({
 
 // Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('gamestore_user') || 'null');
+  const user = readSavedUser();
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;
   }

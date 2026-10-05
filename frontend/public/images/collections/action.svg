@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <defs><linearGradient id="sky" x2="1" y2="1"><stop stop-color="#171c4a"/><stop offset="1" stop-color="#722457"/></linearGradient><linearGradient id="road" x2="0" y2="1"><stop stop-color="#fa5894"/><stop offset="1" stop-color="#161b35"/></linearGradient></defs>
+  <path fill="url(#sky)" d="M0 0h800v500H0z"/><circle cx="540" cy="170" r="95" fill="#ff729a" opacity=".7"/>
+  <path fill="#222345" d="M0 180h90v-60h65v155h70V90h70v180h75v-90h85v110h90V150h70v90h60V80h70v150h55v270H0z"/>
+  <path fill="#0d172c" d="M0 265h65V150h60v195h90V190h65v150h65V215h55v130h80v-90h75v85h75V190h80v135h90v175H0z"/>
+  <g stroke="#8ce7f2" stroke-width="5" opacity=".8"><path d="M82 180v92m18-92v92M236 217v83m20-83v83M648 220v85m20-85v85"/></g>
+  <path fill="url(#road)" d="m370 330 60 0 300 170H65z"/><g stroke="#fc94c3" stroke-width="3"><path d="m385 350-140 150m170-150 140 150M325 395h150M235 450h330"/></g>
+  <path fill="#070d1b" d="m393 293 15-4 12 21-1 40 18 59-17 5-20-48-16 49-16-5 15-66-1-31z"/><circle cx="400" cy="278" r="14" fill="#0a1021"/><path stroke="#67f6ee" stroke-width="5" d="m423 310 45-57"/>
+</svg>

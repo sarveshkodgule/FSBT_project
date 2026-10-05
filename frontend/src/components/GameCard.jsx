@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -25,15 +25,27 @@ const GameCard = ({ game }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [error, setError] = useState('');
+  const soldOut = game.stock === 0;
+
+  useEffect(() => { setImgLoaded(false); }, [game.image]);
 
   const handleAddToCart = async (e) => {
     e.preventDefault();
-    if (!user) { navigate('/login'); return; }
+    if (adding || soldOut) return;
+    if (!user) { navigate('/login', { state: { from: { pathname: `/games/${game._id}` } } }); return; }
+    setAdding(true);
+    setError('');
+    setAdded(false);
     try {
       await addToCart(game._id, 1);
+      setAdded(true);
     } catch (err) {
-      console.error(err);
+      setError(err.message || 'Could not add this game. Please try again.');
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -41,18 +53,18 @@ const GameCard = ({ game }) => {
     // Prevent infinite error loop if the fallback itself somehow fails
     e.currentTarget.onerror = null;
     e.currentTarget.src = FALLBACK_IMG;
-    setImgError(true);
     setImgLoaded(true);
   };
 
-  const displayPrice = game.discountPrice > 0 ? game.discountPrice : game.price;
-  const discount = game.discountPrice > 0
+  const hasDiscount = game.discountPrice > 0 && game.discountPrice < game.price;
+  const displayPrice = hasDiscount ? game.discountPrice : game.price;
+  const discount = hasDiscount
     ? Math.round(((game.price - game.discountPrice) / game.price) * 100)
     : 0;
 
   return (
-    <div className="game-card">
-      <Link to={`/games/${game._id}`}>
+    <article className="game-card">
+      <Link to={`/games/${game._id}`} className="game-card-cover" aria-label={`View ${game.title}`}>
         <div className="game-card-image">
           {/* Skeleton shimmer shown until the image finishes loading */}
           {!imgLoaded && <div className="img-skeleton" aria-hidden="true" />}
@@ -75,6 +87,7 @@ const GameCard = ({ game }) => {
           <h3 className="game-title">{game.title}</h3>
         </Link>
         <p className="game-developer">{game.developer}</p>
+        <p className="game-card-description">{game.description}</p>
         <StarRating rating={game.rating || 0} />
         <div className="game-platforms">
           {game.platform?.map((p) => (
@@ -87,19 +100,23 @@ const GameCard = ({ game }) => {
               <span className="price free">FREE</span>
             ) : (
               <>
-                <span className="price">₹{displayPrice.toLocaleString()}</span>
+                <span className="price">₹{displayPrice.toLocaleString('en-IN')}</span>
                 {discount > 0 && (
-                  <span className="original-price">₹{game.price.toLocaleString()}</span>
+                  <span className="original-price">₹{game.price.toLocaleString('en-IN')}</span>
                 )}
               </>
             )}
           </div>
-          <button className="btn-add-cart" onClick={handleAddToCart}>
-            🛒 Add
+          <button className="btn-add-cart" onClick={handleAddToCart} disabled={adding || soldOut} aria-label={soldOut ? `${game.title} is out of stock` : `Add ${game.title} to cart`}>
+            {soldOut ? 'Out of stock' : adding ? 'Adding…' : 'Add to cart'}
           </button>
         </div>
+        <div className="game-card-feedback" aria-live="polite">
+          {added && <span className="cart-added">Added to cart. <Link to="/cart">View cart →</Link></span>}
+          {error && <span className="cart-add-error" role="alert">{error}</span>}
+        </div>
       </div>
-    </div>
+    </article>
   );
 };
 
